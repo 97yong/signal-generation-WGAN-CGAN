@@ -5,3 +5,4 @@ result/
 *.pt
 *.pickle
 data/*
+!data/.gitkeep
