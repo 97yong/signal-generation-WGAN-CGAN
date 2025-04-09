@@ -1,4 +1,4 @@
-<h1>🔧 CWRU Bearing Fault Diagnosis using CNN</h1>
+<h1>🔧 [1D classification] Fault Diagnosis using CNN</h1>
 
 <p>This project implements a complete modular pipeline for classifying bearing faults using <strong>Convolutional Neural Networks</strong> on the <strong>CWRU</strong> (Case Western Reserve University) dataset.</p>
 
