@@ -4,4 +4,4 @@ outputs/
 result/
 *.pt
 *.pickle
-data/
+data/*
