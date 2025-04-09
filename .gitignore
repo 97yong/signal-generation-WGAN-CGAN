@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+outputs/
+result/
+*.pt
+*.pickle
+data/
