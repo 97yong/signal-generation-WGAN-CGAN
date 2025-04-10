@@ -85,16 +85,34 @@ For each class, the average FFT similarity is computed and plotted:
   <li><strong>Normal data</strong> is harder to generate realistically due to lack of high-frequency components or variation.</li>
 </ul>
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/c1e90368-dc59-4d47-a50a-467178da4235" width="500" alt="FFT Cosine Similarity Boxplot"/>
+  <br/><em>Figure 1. Cosine Similarity between real and generated signals (FFT-based)</em>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0bae435e-fa81-47ea-8b49-0a3e6b6868ff" width="700" alt="FFT Comparison of Real vs Generated"/>
+  <br/><em>Figure 2. Sample FFT curves - Real vs Generated per class</em>
+</p>
+
 <p>
 Future improvements (e.g., <strong>spectral loss</strong>, <strong>multi-resolution FFTs</strong>, or <strong>1D CNN-based discriminator</strong>) could enhance the ability to capture subtle patterns in normal signals.
 </p>
 
 <hr/>
 
-<h2>📎 Reference</h2>
+<h2>📎 References</h2>
 
 <ul>
-  <li>🔗 CWRU Dataset: <a href="https://engineering.case.edu/bearingdatacenter/download-data-file" target="_blank">https://engineering.case.edu/bearingdatacenter/download-data-file</a></li>
-  <li>📄 WGAN Paper: Arjovsky et al., 2017. "Wasserstein GAN"</li>
-  <li>📄 CGAN Paper: Mirza & Osindero, 2014. "Conditional GAN"</li>
+  <li>🔗 <strong>CWRU Dataset</strong>: 
+    <a href="https://engineering.case.edu/bearingdatacenter/download-data-file" target="_blank">
+      https://engineering.case.edu/bearingdatacenter/download-data-file
+    </a>
+  </li>
+  <li>📄 <strong>WGAN</strong>: Arjovsky et al., 2017. <em>"Wasserstein GAN"</em> 
+    <a href="https://arxiv.org/abs/1701.07875" target="_blank">[arXiv]</a>
+  </li>
+  <li>📄 <strong>CGAN</strong>: Mirza & Osindero, 2014. <em>"Conditional Generative Adversarial Nets"</em> 
+    <a href="https://arxiv.org/abs/1411.1784" target="_blank">[arXiv]</a>
+  </li>
 </ul>
