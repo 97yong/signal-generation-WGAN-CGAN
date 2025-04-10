@@ -1,59 +1,56 @@
 import torch
-import numpy as np
+import torch.nn as nn
+import torch.optim as optim
+from model import CGANGenerator, CGANDiscriminator
 from tqdm import tqdm
-from model import CNNModel
-import torch.nn.functional as F
-import pickle
-import os
 
-def train_model(opt, train_dl, valid_dl):
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = CNNModel().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr)
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda e: opt.lamda ** e)
-    criterion = torch.nn.CrossEntropyLoss()
+def train_cgan(opt, train_dl, n_critic=5, clip_value=0.01):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    dict_result = {'train_loss': [], 'valid_loss': [], 'stop_point': 0}
-    best_loss = float('inf')
-    early_stop_count = 0
-    best_model = None
+    G = CGANGenerator(noise_dim=100, class_dim=4, output_dim=1200).to(device)
+    D = CGANDiscriminator(input_dim=1200, class_dim=4).to(device)
 
-    pbar = tqdm(range(opt.epochs), desc="Training")
+    optimizer_G = optim.RMSprop(G.parameters(), lr=opt.lr)
+    optimizer_D = optim.RMSprop(D.parameters(), lr=opt.lr)
 
-    for epoch in pbar:
-        model.train()
-        train_loss = []
-        for x, y in train_dl:
-            optimizer.zero_grad()
-            loss = criterion(model(x), y)
-            loss.backward()
-            optimizer.step()
-            train_loss.append(loss.item())
-        scheduler.step()
+    for epoch in range(opt.epochs):
+        G.train(); D.train()
+        loop = tqdm(enumerate(train_dl), total=len(train_dl), desc=f"Epoch {epoch+1}/{opt.epochs}")
         
-        pbar.set_postfix({'train_loss': np.mean(train_loss)})
+        for i, (x_real, y_real) in loop:
+            x_real = x_real.squeeze(1).to(device)         # [B, 1200]
+            y_real_idx = y_real.to(device)                # [B]
+            y_onehot = torch.nn.functional.one_hot(y_real_idx, num_classes=4).float().to(device)
+            batch_size = x_real.size(0)
 
-        # Validation
-        model.eval()
-        val_loss = []
-        with torch.no_grad():
-            for x, y in valid_dl:
-                val_loss.append(criterion(model(x), y).item())
+            # === Train Discriminator ===
+            for _ in range(n_critic):
+                z = torch.randn(batch_size, 100).to(device)
+                x_fake = G(z, y_onehot).detach()
 
-        train_avg = np.mean(train_loss)
-        valid_avg = np.mean(val_loss)
-        dict_result['train_loss'].append(train_avg)
-        dict_result['valid_loss'].append(valid_avg)
+                d_real = D(x_real, y_onehot)
+                d_fake = D(x_fake, y_onehot)
 
-        if valid_avg < best_loss:
-            best_loss = valid_avg
-            early_stop_count = 0
-            dict_result['stop_point'] = epoch + 1
-            best_model = model
-            
-        else:
-            early_stop_count += 1
-            if early_stop_count > opt.early_stop:
-                break
+                d_loss = -torch.mean(d_real) + torch.mean(d_fake)
 
-    return best_model, dict_result
+                optimizer_D.zero_grad()
+                d_loss.backward()
+                optimizer_D.step()
+
+                # Clip weights (WGAN rule)
+                for p in D.parameters():
+                    p.data.clamp_(-clip_value, clip_value)
+
+            # === Train Generator ===
+            z = torch.randn(batch_size, 100).to(device)
+            x_fake = G(z, y_onehot)
+            d_fake = D(x_fake, y_onehot)
+            g_loss = -torch.mean(d_fake)
+
+            optimizer_G.zero_grad()
+            g_loss.backward()
+            optimizer_G.step()
+
+            loop.set_postfix(D_loss=d_loss.item(), G_loss=g_loss.item())
+
+    return G, D
