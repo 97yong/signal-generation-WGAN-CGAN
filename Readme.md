@@ -101,6 +101,11 @@ Future improvements (e.g., <strong>spectral loss</strong>, <strong>multi-resolut
 
 <hr/>
 
+<h2> Views </h2>
+
+![](http://profile-counter.glitch.me/97yong-signal-generation-WGAN-CGAN/count.svg)
+
+
 <h2>📎 References</h2>
 
 <ul>
